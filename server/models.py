@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy.ext.associationproxy import association_proxy
 
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
@@ -18,7 +19,7 @@ class Bakery(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    baked_goods = db.relationship('BakedGood', backref='bakery')
+    baked_goods = db.relationship('BakedGood', back_populates='bakery')
 
     def __repr__(self):
         return f'<Bakery {self.name}>'
@@ -35,6 +36,7 @@ class BakedGood(db.Model, SerializerMixin):
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     bakery_id = db.Column(db.Integer, db.ForeignKey('bakeries.id'))
+    bakery = db.relationship('Bakery', back_populates='baked_goods')
 
     def __repr__(self):
         return f'<Baked Good {self.name}, ${self.price}>'
